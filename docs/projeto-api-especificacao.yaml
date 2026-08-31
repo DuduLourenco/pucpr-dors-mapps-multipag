@@ -1,0 +1,496 @@
+openapi: 3.0.3
+info:
+  title: MultiPag API
+  description: >
+    API essencial da plataforma de cobrança MultiPag. Cobre o cadastro e
+    autenticação de businesses e clientes, criação e pagamento de cobranças,
+    consulta de saldo/extrato e solicitação de saque via Pix.
+    Cada operação referencia o Requisito Funcional (RFxx) do documento de
+    definição do projeto, para fins de rastreabilidade.
+  version: "1.0.0"
+servers:
+  - url: https://api.multipag.com.br/v1
+    description: Ambiente de produção (exemplo)
+
+tags:
+  - name: Business
+    description: Cadastro, autenticação e conta digital do lojista/prestador de serviço
+  - name: Cobrancas
+    description: Criação e consulta de cobranças
+  - name: Pagamentos
+    description: Pagamento de cobranças pelo cliente final
+  - name: Clientes
+    description: Conta opcional do cliente final
+  - name: Webhooks
+    description: Callbacks assíncronos dos gateways de pagamento
+
+security:
+  - businessAuth: []
+
+paths:
+
+  # =====================================================
+  # BUSINESS
+  # =====================================================
+  /business:
+    post:
+      tags: [Business]
+      summary: Cadastrar novo business
+      description: RF01 - Cria a conta do lojista/prestador de serviço.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessCadastroInput'
+      responses:
+        '201':
+          description: Business criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Business'
+        '409':
+          description: E-mail ou CPF já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+
+  /business/login:
+    post:
+      tags: [Business]
+      summary: Autenticar business
+      description: RF02 - Login do business com e-mail e senha.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        '200':
+          description: Autenticado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+
+  /business/saldo:
+    get:
+      tags: [Business]
+      summary: Consultar saldo disponível
+      description: RF07 - Retorna o saldo disponível em reais do business autenticado.
+      responses:
+        '200':
+          description: Saldo atual
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  saldo_disponivel:
+                    type: number
+                    format: decimal
+                    example: 250.00
+
+  /business/extrato:
+    get:
+      tags: [Business]
+      summary: Consultar extrato de movimentações
+      description: RF08 / RNF09 - Lista as movimentações (entradas de pagamento e saques) do business.
+      parameters:
+        - name: data_inicio
+          in: query
+          schema: { type: string, format: date }
+        - name: data_fim
+          in: query
+          schema: { type: string, format: date }
+        - name: tipo
+          in: query
+          schema:
+            type: string
+            enum: [entrada_pagamento, saque]
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+      responses:
+        '200':
+          description: Lista de movimentações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movimentacao'
+
+  /business/saques:
+    post:
+      tags: [Business]
+      summary: Solicitar saque
+      description: RF09 - Solicita o saque do saldo disponível, exclusivamente via Pix.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [valor, chave_pix]
+              properties:
+                valor:
+                  type: number
+                  format: decimal
+                  example: 100.00
+                chave_pix:
+                  type: string
+                  example: "marina@marinaboutique.com"
+      responses:
+        '201':
+          description: Saque solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Saque'
+        '422':
+          description: Saldo insuficiente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+
+  # =====================================================
+  # COBRANCAS
+  # =====================================================
+  /cobrancas:
+    post:
+      tags: [Cobrancas]
+      summary: Criar cobrança
+      description: >
+        RF03 / RF04 / RF05 / RF06 - Cria uma cobrança definindo valor, descrição,
+        destinatário e métodos de pagamento aceitos. A resposta já inclui o link
+        único de pagamento a ser enviado ao cliente.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CobrancaInput'
+      responses:
+        '201':
+          description: Cobrança criada, com link de pagamento gerado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cobranca'
+
+  /cobrancas/{linkToken}:
+    get:
+      tags: [Cobrancas]
+      summary: Acessar cobrança pelo link
+      description: RF10 - O cliente final acessa os dados da cobrança a partir do link recebido. Endpoint público.
+      security: []
+      parameters:
+        - name: linkToken
+          in: path
+          required: true
+          schema: { type: string }
+          example: "mpg48739"
+      responses:
+        '200':
+          description: Dados da cobrança
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cobranca'
+        '404':
+          description: Cobrança não encontrada ou link expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+
+  # =====================================================
+  # PAGAMENTOS
+  # =====================================================
+  /pagamentos:
+    post:
+      tags: [Pagamentos]
+      summary: Pagar uma cobrança
+      description: >
+        RF11 / RF12 - Efetua o pagamento de uma cobrança. O CPF do pagador é
+        sempre obrigatório, mesmo para quem paga como convidado (sem conta).
+        O método informado deve estar entre os habilitados na cobrança.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PagamentoInput'
+      responses:
+        '201':
+          description: Pagamento iniciado (status pendente até confirmação do gateway)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pagamento'
+        '422':
+          description: Método não habilitado para esta cobrança, ou cobrança já paga
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+
+  # =====================================================
+  # CLIENTES (conta opcional)
+  # =====================================================
+  /clientes:
+    post:
+      tags: [Clientes]
+      summary: Criar conta de cliente
+      description: RF13 - Cadastro opcional do cliente final (e-mail, CPF e senha).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClienteCadastroInput'
+      responses:
+        '201':
+          description: Conta de cliente criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+
+  /clientes/login:
+    post:
+      tags: [Clientes]
+      summary: Autenticar cliente
+      description: RF13 - Login do cliente final com e-mail e senha.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        '200':
+          description: Autenticado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+
+  /clientes/me/cobrancas:
+    get:
+      tags: [Clientes]
+      summary: Listar minhas cobranças
+      description: >
+        RF14 - Retorna todas as cobranças vinculadas ao CPF do cliente logado,
+        de qualquer business cadastrado na plataforma (inclui cobranças pagas
+        anteriormente como convidado).
+      security:
+        - clienteAuth: []
+      responses:
+        '200':
+          description: Lista de cobranças do cliente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cobranca'
+
+  # =====================================================
+  # WEBHOOKS
+  # =====================================================
+  /webhooks/pagamentos/confirmacao:
+    post:
+      tags: [Webhooks]
+      summary: Callback de confirmação de pagamento
+      description: >
+        RF15 - Endpoint chamado pelo gateway de pagamento (Pix/cartão/boleto/cripto)
+        para confirmar a liquidação. Atualiza automaticamente o status da cobrança
+        para "paga" e gera a movimentação de entrada no extrato do business.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pagamento_id, transacao_externa_id, status]
+              properties:
+                pagamento_id:
+                  type: string
+                  format: uuid
+                transacao_externa_id:
+                  type: string
+                status:
+                  type: string
+                  enum: [confirmado, falhou]
+      responses:
+        '200':
+          description: Status processado com sucesso
+
+# =========================================================
+components:
+  securitySchemes:
+    businessAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token obtido em POST /business/login
+    clienteAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token obtido em POST /clientes/login
+
+  schemas:
+    MetodoPagamento:
+      type: string
+      enum: [pix, cartao, boleto, cripto]
+
+    StatusCobranca:
+      type: string
+      enum: [pendente, paga, expirada, cancelada]
+
+    BusinessCadastroInput:
+      type: object
+      required: [nome_empresa, email, cpf, data_nascimento, senha]
+      properties:
+        nome_empresa: { type: string, example: "Marina Boutique" }
+        email: { type: string, format: email }
+        cpf: { type: string, example: "12345678910" }
+        data_nascimento: { type: string, format: date }
+        senha: { type: string, format: password }
+
+    Business:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        nome_empresa: { type: string }
+        email: { type: string, format: email }
+        saldo_disponivel: { type: number, format: decimal }
+        criado_em: { type: string, format: date-time }
+
+    ClienteCadastroInput:
+      type: object
+      required: [email, cpf, senha]
+      properties:
+        email: { type: string, format: email }
+        cpf: { type: string }
+        senha: { type: string, format: password }
+
+    Cliente:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        cpf: { type: string }
+
+    LoginInput:
+      type: object
+      required: [email, senha]
+      properties:
+        email: { type: string, format: email }
+        senha: { type: string, format: password }
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token: { type: string }
+        token_type: { type: string, example: "Bearer" }
+        expires_in: { type: integer, example: 3600 }
+
+    CobrancaInput:
+      type: object
+      required: [valor, cliente_cpf, metodos_pagamento]
+      properties:
+        valor: { type: number, format: decimal, example: 250.00 }
+        descricao: { type: string, example: "Floral dress" }
+        cliente_cpf: { type: string, example: "98765432100" }
+        cliente_email: { type: string, format: email, example: "joao.silva@email.com" }
+        metodos_pagamento:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetodoPagamento'
+          example: [pix, cartao]
+
+    Cobranca:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        business_id: { type: string, format: uuid }
+        valor: { type: number, format: decimal }
+        descricao: { type: string }
+        cliente_cpf: { type: string }
+        metodos_pagamento:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetodoPagamento'
+        link_pagamento: { type: string, example: "https://multipag.com.br/p/mpg48739" }
+        status:
+          $ref: '#/components/schemas/StatusCobranca'
+        criado_em: { type: string, format: date-time }
+        pago_em: { type: string, format: date-time, nullable: true }
+
+    PagamentoInput:
+      type: object
+      required: [cobranca_id, metodo, cpf_pagador]
+      properties:
+        cobranca_id: { type: string, format: uuid }
+        metodo:
+          $ref: '#/components/schemas/MetodoPagamento'
+        cpf_pagador: { type: string, example: "98765432100" }
+
+    Pagamento:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        cobranca_id: { type: string, format: uuid }
+        metodo_utilizado:
+          $ref: '#/components/schemas/MetodoPagamento'
+        valor_pago: { type: number, format: decimal }
+        status:
+          type: string
+          enum: [pendente, confirmado, falhou]
+        pago_em: { type: string, format: date-time }
+
+    Movimentacao:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        tipo: { type: string, enum: [entrada_pagamento, saque] }
+        valor: { type: number, format: decimal }
+        descricao: { type: string }
+        criado_em: { type: string, format: date-time }
+
+    Saque:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        valor: { type: number, format: decimal }
+        chave_pix: { type: string }
+        status:
+          type: string
+          enum: [solicitado, processando, concluido, falhou]
+        solicitado_em: { type: string, format: date-time }
+
+    Erro:
+      type: object
+      properties:
+        codigo: { type: string, example: "EMAIL_JA_CADASTRADO" }
+        mensagem: { type: string, example: "Este e-mail já está em uso." }
