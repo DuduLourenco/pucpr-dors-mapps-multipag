@@ -1,0 +1,21 @@
+# Banco PostgreSQL do MultiPag. Porta 5433 para não conflitar com outro
+# Postgres que já esteja rodando na 5432.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: multipag_db
+    environment:
+      POSTGRES_USER: multipag
+      POSTGRES_PASSWORD: multipag
+      POSTGRES_DB: multipag
+    ports:
+      - "5433:5432"
+    volumes:
+      - multipag_dados:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U multipag"]
+      interval: 3s
+      retries: 10
+
+volumes:
+  multipag_dados:
