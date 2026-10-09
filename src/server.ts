@@ -1,3 +1,4 @@
+import next from 'next';
 import { AppConfigSingleton } from './config/AppConfigSingleton';
 import { criarApp } from './http/app';
 import { DatabaseSingleton } from './infra/DatabaseSingleton';
@@ -17,6 +18,10 @@ try {
 
 if (config.popularDadosExemplo) await popularDadosDeExemplo();
 
-criarApp().listen(config.porta, () => {
+// O Next.js roda dentro deste mesmo servidor: uma porta só para API e telas.
+const front = next({ dev: !config.emProducao });
+await front.prepare();
+
+criarApp(front.getRequestHandler()).listen(config.porta, () => {
   console.log(`MultiPag rodando em ${config.urlBase}`);
 });

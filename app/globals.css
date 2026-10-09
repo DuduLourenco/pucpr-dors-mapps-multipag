@@ -21,8 +21,9 @@
   --azul: #3B82F6;
   --roxo: #8B5CF6;
   --raio: 14px;
-  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  /* --fonte-sans e --fonte-mono vêm do next/font (app/layout.tsx): Inter e JetBrains Mono */
+  --sans: var(--fonte-sans), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: var(--fonte-mono), ui-monospace, 'SF Mono', Menlo, monospace;
 }
 
 *, *::before, *::after { box-sizing: border-box; }

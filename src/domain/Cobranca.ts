@@ -97,7 +97,7 @@ export class Cobranca extends Entidade {
   }
 
   get linkPagamento(): string {
-    return `${AppConfigSingleton.instancia().urlBase}/#/pagar/${this.linkToken}`;
+    return `${AppConfigSingleton.instancia().urlBase}/pagar/${this.linkToken}`;
   }
 
   get linkAberto(): boolean {

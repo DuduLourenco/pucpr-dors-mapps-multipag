@@ -13,6 +13,8 @@ import { arredondar } from '../shared/validacao';
 export class AppConfigSingleton {
   private static instanciaUnica: AppConfigSingleton | null = null;
 
+  /** NODE_ENV=production: o Next.js serve o build pronto em vez de compilar as telas a cada mudança. */
+  readonly emProducao: boolean;
   readonly porta: number;
   readonly urlBase: string;
   readonly databaseUrl: string;
@@ -31,6 +33,7 @@ export class AppConfigSingleton {
 
   // Construtor privado: ninguém fora da classe consegue dar "new AppConfigSingleton()".
   private constructor(env: NodeJS.ProcessEnv) {
+    this.emProducao = env.NODE_ENV === 'production';
     this.porta = Number(env.PORT ?? 3333);
     this.urlBase = env.URL_BASE ?? `http://localhost:${this.porta}`;
     this.databaseUrl = env.DATABASE_URL ?? 'postgres://multipag:multipag@localhost:5433/multipag';

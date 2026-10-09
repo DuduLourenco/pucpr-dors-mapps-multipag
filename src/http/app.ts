@@ -1,4 +1,4 @@
-import path from 'node:path';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import express, { Router } from 'express';
 import QRCode from 'qrcode';
 import { BusinessService } from '../crud/BusinessService';
@@ -10,7 +10,10 @@ import { PagamentoService } from '../services/PagamentoService';
 import { autenticar, contexto, tratarErros } from './middlewares';
 import { rotasCrud } from './rotasCrud';
 
-export function criarApp() {
+/** Quem responde tudo o que não é /api: o Next.js (telas em app/). */
+export type FrontEnd = (req: IncomingMessage, res: ServerResponse) => Promise<void>;
+
+export function criarApp(frontEnd?: FrontEnd) {
   const businessService = new BusinessService();
   const cobrancaService = new CobrancaService();
   const saqueService = new SaqueService();
@@ -19,8 +22,6 @@ export function criarApp() {
   const pagamentoService = new PagamentoService();
 
   const app = express();
-  app.use(express.json({ limit: '100kb' }));
-  app.use(express.static(path.resolve(import.meta.dirname, '../../public')));
 
   // ------------------------- rotas públicas -------------------------
   const publico = Router();
@@ -95,10 +96,12 @@ export function criarApp() {
     res.type(arquivo.contentType).attachment(arquivo.nomeArquivo).send(arquivo.conteudo);
   });
 
-  app.use('/api', publico, privado);
+  // O JSON só é lido em /api: o corpo das demais requisições fica intacto para o Next.js.
+  app.use('/api', express.json({ limit: '100kb' }), publico, privado);
   app.use('/api', (_req, res) => {
     res.status(404).json({ codigo: 'ROTA_INEXISTENTE', mensagem: 'Rota não encontrada.' });
   });
+  if (frontEnd) app.use((req, res) => frontEnd(req, res));
   app.use(tratarErros);
   return app;
 }

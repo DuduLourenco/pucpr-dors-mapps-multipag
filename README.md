@@ -12,7 +12,9 @@ Este repositório é a entrega de código do trabalho de Padrões de Projeto (**
 | **Novo padrão: Adapter**, 3 exemplos | `PixGatewayAdapter`, `CartaoGatewayAdapter` e `CriptoGatewayAdapter` ([seção 4.3](#43-adapter-novo-padrão-3-exemplos)) |
 | 6 telas com CRUD (3 membros × 2 telas) | [Seção 5](#5-telas-e-divisão-da-equipe), baseadas nas telas do Figma em `docs/telas` |
 
-**Stack:** Node.js 22 + TypeScript + Express 5 no back-end, PostgreSQL 16 no banco e HTML/CSS/JavaScript puro (sem framework) no front-end.
+**Stack:** Node.js 22 + TypeScript + Express 5 no back-end, PostgreSQL 16 no banco e Next.js 16 (App Router) + React 19 no front-end.
+
+O Next.js roda dentro do próprio servidor Express ([`src/server.ts`](src/server.ts)): o Express responde `/api` e entrega todo o resto para o Next, então API e telas saem da mesma porta.
 
 ---
 
@@ -37,7 +39,9 @@ Outros comandos:
 
 ```bash
 npm test             # testes dos padrões (não precisam de banco)
-npm run typecheck    # verificação de tipos
+npm run typecheck    # verificação de tipos (back-end e telas)
+npm run build        # compila as telas para produção
+npm start            # sobe em modo produção (rode o build antes)
 ```
 
 As variáveis de ambiente estão em [`.env.example`](.env.example).
@@ -61,7 +65,12 @@ src/
 ├── http/                          Express: rotas, rotas CRUD genéricas e middlewares
 ├── seed.ts                        dados de exemplo
 └── server.ts                      ponto de entrada
-public/                            front-end (um arquivo por tela em js/telas/)
+app/                               front-end em Next.js (App Router): cada pasta com page.tsx é uma rota
+├── layout.tsx, globals.css        layout raiz, fontes e estilos
+├── (publico)/                     login, cadastro e pagamento pelo link (sem sessão)
+├── (privado)/                     telas do business; layout.tsx exige sessão ativa
+├── _componentes/                  componentes reaproveitados (ui.tsx, Icone, Toast, ItemMovimentacao)
+└── _lib/                          chamada da API, formatação/máscaras, hooks e tipos
 db/                                schema original + migração com ajustes do Figma
 test/                              testes dos padrões
 ```
@@ -283,23 +292,24 @@ A adaptação mais "pesada": a exchange **não aceita reais**.
 - **`RepositorioPostgres<T>`**: o SQL de `buscarPorId`/`inserir`/`atualizar`/`remover` é escrito uma vez. Cada repositório só informa a tabela e como converter linha ↔ entidade. `CobrancaRepositorio` usa os ganchos `hidratar()`/`aposGravar()` para as tabelas filhas.
 - **`Entidade`**: `id` e `criadoEm` herdados por todas as entidades.
 - **`Cpf` / `Cnpj`**: value objects usados no cadastro, na cobrança, no pagamento e nos repositórios. A regra dos dígitos verificadores existe em um lugar só.
-- **Front-end**: `ui.js` concentra componentes (`barraTopo`, `etapas`, `aviso`, `chipStatus`) e máscaras reaproveitados pelas 8 telas.
+- **Front-end**: [`app/_componentes/ui.tsx`](app/_componentes/ui.tsx) concentra os componentes React (`BarraTopo`, `Etapas`, `Aviso`, `ChipStatus`, `Botao`) reaproveitados pelas telas, e [`app/_lib/`](app/_lib) as máscaras e os hooks `useDados`/`useCarregamento`. `FormCobranca` é um componente só para criar e editar cobrança.
+- **Tipos da API**: [`app/_lib/tipos.ts`](app/_lib/tipos.ts) deriva o formato das respostas direto do `toJSON()` das entidades de `src/domain`, então as telas reutilizam os tipos do back-end em vez de redeclará-los.
 
 ---
 
 ## 5. Telas e divisão da equipe
 
-As telas reproduzem o protótipo do Figma (exportado em [`docs/telas/`](docs/telas)). Cada tela é um arquivo em [`public/js/telas/`](public/js/telas).
+As telas reproduzem o protótipo do Figma (exportado em [`docs/telas/`](docs/telas)). Cada tela é um `page.tsx` em [`app/`](app); a coluna Arquivo é relativa a essa pasta.
 
 | Membro | Tela | Arquivo | Telas do Figma | CRUD |
 |---|---|---|---|---|
-| **1** | 1. Login | `login.js` | `multipag-login` | autenticação |
-| **1** | 2. Cadastro (3 etapas) + Minha conta | `cadastro.js`, `conta.js` | `cadastro-etapa-1/2/3` | **Business**: Create, Read, Update, Delete |
-| **2** | 3. Nova / editar cobrança (5 etapas) | `form-cobranca.js` | `criar-cobranca-etapa-1..5` | **Cobrança**: Create, Update |
-| **2** | 4. Lista de cobranças | `cobrancas.js` | (painel → Cobranças) | **Cobrança**: Read, Delete (cancelamento) |
-| **3** | 5. Pagamento pelo cliente | `pagamento.js` | `cobranca-recebida-cliente`, `pagamento-*`, `pagamento-retorno-*` | **Pagamento**: Create, Read |
-| **3** | 6. Saque | `saque.js` | `saque` | **Saque**: Create, Read |
-| apoio | Painel e Extrato | `painel.js`, `extrato.js` | `business-dashboard`, `extrato` | Read + exportação CSV/TXT |
+| **1** | 1. Login | `(publico)/entrar/page.tsx` | `multipag-login` | autenticação |
+| **1** | 2. Cadastro (3 etapas) + Minha conta | `(publico)/cadastro/page.tsx`, `(privado)/conta/page.tsx` | `cadastro-etapa-1/2/3` | **Business**: Create, Read, Update, Delete |
+| **2** | 3. Nova / editar cobrança (5 etapas) | `(privado)/cobrancas/FormCobranca.tsx` (rotas `nova/` e `[id]/editar/`) | `criar-cobranca-etapa-1..5` | **Cobrança**: Create, Update |
+| **2** | 4. Lista de cobranças | `(privado)/cobrancas/page.tsx` | (painel → Cobranças) | **Cobrança**: Read, Delete (cancelamento) |
+| **3** | 5. Pagamento pelo cliente | `(publico)/pagar/[token]/page.tsx` | `cobranca-recebida-cliente`, `pagamento-*`, `pagamento-retorno-*` | **Pagamento**: Create, Read |
+| **3** | 6. Saque | `(privado)/sacar/page.tsx` | `saque` | **Saque**: Create, Read |
+| apoio | Painel e Extrato | `(privado)/painel/page.tsx`, `(privado)/extrato/page.tsx` | `business-dashboard`, `extrato` | Read + exportação CSV/TXT |
 
 ---
 
