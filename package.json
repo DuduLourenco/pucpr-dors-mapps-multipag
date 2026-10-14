@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "express": "^5.2.1",
+    "multipag-validador-documentos": "^1.0.0",
     "next": "^16.4.0",
     "pg": "^8.23.0",
     "qrcode": "^1.5.4",

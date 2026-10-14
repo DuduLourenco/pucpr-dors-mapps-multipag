@@ -1,0 +1,35 @@
+{
+  "name": "multipag-validador-documentos",
+  "version": "1.0.0",
+  "description": "Validação, formatação e máscaras de CPF e CNPJ (inclui o CNPJ alfanumérico).",
+  "keywords": ["cpf", "cnpj", "cnpj-alfanumerico", "validacao", "mascara", "brasil"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DuduLourenco/pucpr-dors-mapps-multipag.git",
+    "directory": "pacotes/validador-documentos"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test \"test/*.test.ts\"",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "typescript": "^7.0.2"
+  }
+}

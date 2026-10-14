@@ -11,6 +11,7 @@ Este repositório é a entrega de código do trabalho de Padrões de Projeto (**
 | **Template Method**, 3 exemplos | `ProcessadorPagamentoTemplateMethod`, `CrudServiceTemplateMethod` e `ExportadorExtratoTemplateMethod` ([seção 4.2](#42-template-method-3-exemplos)) |
 | **Novo padrão: Adapter**, 3 exemplos | `PixGatewayAdapter`, `CartaoGatewayAdapter` e `CriptoGatewayAdapter` ([seção 4.3](#43-adapter-novo-padrão-3-exemplos)) |
 | 6 telas com CRUD (3 membros × 2 telas) | [Seção 5](#5-telas-e-divisão-da-equipe), baseadas nas telas do Figma em `docs/telas` |
+| Pacote reutilizável | [`multipag-validador-documentos`](pacotes/validador-documentos) (validação de CPF/CNPJ), publicado no npm e instalado no projeto ([seção 4.5](#45-pacote-multipag-validador-documentos)) |
 
 **Stack:** Node.js 22 + TypeScript + Express 5 no back-end, PostgreSQL 16 no banco e Next.js 16 (App Router) + React 19 no front-end.
 
@@ -71,6 +72,7 @@ app/                               front-end em Next.js (App Router): cada pasta
 ├── (privado)/                     telas do business; layout.tsx exige sessão ativa
 ├── _componentes/                  componentes reaproveitados (ui.tsx, Icone, Toast, ItemMovimentacao)
 └── _lib/                          chamada da API, formatação/máscaras, hooks e tipos
+pacotes/validador-documentos/      código-fonte do pacote npm de validação de CPF/CNPJ
 db/                                schema original + migração com ajustes do Figma
 test/                              testes dos padrões
 ```
@@ -88,8 +90,8 @@ test/                              testes dos padrões
 | 5 | `Pagamento` | `metodo`, `valorPago`, `taxa`, `status`, `transacaoExternaId`, `instrucoes`, `detalhes` | `valorLiquido`, `registrarEnvio()`, `confirmar()`, `falhar()` |
 | 6 | `Saque` | `valor`, `chavePix`, `status`, `concluidoEm` | `concluir()`, `falhar()` |
 | 7 | `Movimentacao` | `tipo`, `valor`, `descricao`, `metodo` | `deEntrada()`, `deSaque()`, `ehEntrada()` |
-| 8 | `Cpf` (value object) | `valor` | `criar()`, `valido()`, `formatado()`, `mascarado()` |
-| 9 | `Cnpj` (value object) | `valor` | `criar()`, `valido()` (inclui o CNPJ alfanumérico de 2026), `formatado()` |
+| 8 | `Cpf` (value object) | `valor` | `criar()`, `valido()`, `formatado()`, `mascarado()` (usa o pacote) |
+| 9 | `Cnpj` (value object) | `valor` | `criar()`, `valido()` (inclui o CNPJ alfanumérico de 2026), `formatado()` (usa o pacote) |
 | 10 | `AppConfigSingleton` | taxas, URL base, credenciais, limites | `instancia()`, `taxaPara()`, `urlWebhook()` |
 | 11 | `DatabaseSingleton` | `pool`, `transacaoAtual` | `instancia()`, `consultar()`, `transacao()`, `migrar()` |
 | 12 | `RepositorioPostgres<T>` | `tabela`, `colunaCriacao` | `buscarPorId()`, `inserir()`, `atualizar()`, `remover()` |
@@ -291,9 +293,19 @@ A adaptação mais "pesada": a exchange **não aceita reais**.
 
 - **`RepositorioPostgres<T>`**: o SQL de `buscarPorId`/`inserir`/`atualizar`/`remover` é escrito uma vez. Cada repositório só informa a tabela e como converter linha ↔ entidade. `CobrancaRepositorio` usa os ganchos `hidratar()`/`aposGravar()` para as tabelas filhas.
 - **`Entidade`**: `id` e `criadoEm` herdados por todas as entidades.
-- **`Cpf` / `Cnpj`**: value objects usados no cadastro, na cobrança, no pagamento e nos repositórios. A regra dos dígitos verificadores existe em um lugar só.
+- **`Cpf` / `Cnpj`**: value objects usados no cadastro, na cobrança, no pagamento e nos repositórios. A validação em si vem do pacote da [seção 4.5](#45-pacote-multipag-validador-documentos).
 - **Front-end**: [`app/_componentes/ui.tsx`](app/_componentes/ui.tsx) concentra os componentes React (`BarraTopo`, `Etapas`, `Aviso`, `ChipStatus`, `Botao`) reaproveitados pelas telas, e [`app/_lib/`](app/_lib) as máscaras e os hooks `useDados`/`useCarregamento`. `FormCobranca` é um componente só para criar e editar cobrança.
 - **Tipos da API**: [`app/_lib/tipos.ts`](app/_lib/tipos.ts) deriva o formato das respostas direto do `toJSON()` das entidades de `src/domain`, então as telas reutilizam os tipos do back-end em vez de redeclará-los.
+
+### 4.5 Pacote `multipag-validador-documentos`
+
+A validação de CPF e CNPJ foi extraída para um pacote npm próprio, com código-fonte em [`pacotes/validador-documentos`](pacotes/validador-documentos) e instalado como dependência (`npm install multipag-validador-documentos`).
+
+| Quem usa | O que usa | Por que faz sentido para o reuso |
+|---|---|---|
+| Back-end: [`Cpf`](src/domain/Cpf.ts) e [`Cnpj`](src/domain/Cnpj.ts) | `cpfValido`, `limparCpf`, `formatarCpf`, `ocultarCpf`, `cnpjValido`, `limparCnpj`, `formatarCnpj` | Os value objects continuam sendo a porta de entrada dos documentos, mas o cálculo dos dígitos verificadores não mora mais no projeto. |
+| Front-end: [`app/_lib/formato.ts`](app/_lib/formato.ts) | `cpfValido`, `cnpjValido`, `mascaraCpf`, `mascaraCnpj` | Antes a regra era escrita duas vezes (uma no back, outra nas telas). Agora as duas pontas importam a mesma função, então não há como divergirem. |
+| Outros projetos | o pacote inteiro | Não depende de nada do MultiPag: qualquer sistema que lide com CPF/CNPJ (inclusive o CNPJ alfanumérico) pode instalar e usar. |
 
 ---
 
