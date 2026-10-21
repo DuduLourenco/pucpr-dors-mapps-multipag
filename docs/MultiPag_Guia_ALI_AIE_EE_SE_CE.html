@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ALI, AIE, EE, SE e CE explicados com o MultiPag</title>
+<style>
+:root{--bg:#f7f6f2;--card:#ffffff;--ink:#1d2433;--mute:#5b6577;--line:#ddd8cc;--navy:#14284b;--terra:#c8643b;--soft:#f0ede4;--ok:#2f7d5b;--okbg:#e6f3ec;--warn:#9a5a12;--warnbg:#fbeedb;--code:#eceae1}
+@media (prefers-color-scheme:dark){:root{--bg:#12161f;--card:#1a2030;--ink:#e8eaf0;--mute:#a0a9ba;--line:#2e3649;--navy:#9db8ee;--terra:#e8845a;--soft:#222a3d;--ok:#6fcf9f;--okbg:#17302a;--warn:#f0b25f;--warnbg:#33281a;--code:#232b3d}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+header{padding:40px 16px 12px;max-width:900px;margin:0 auto}
+header h1{margin:0 0 8px;font-size:clamp(26px,5vw,36px);line-height:1.2;color:var(--navy)}
+header p{margin:0;color:var(--mute);max-width:62ch}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-top:20px}
+nav div{max-width:900px;margin:0 auto;padding:10px 16px;display:flex;gap:8px;overflow-x:auto}
+nav a{flex:none;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:14px;font-weight:600}
+nav a:hover{border-color:var(--terra);color:var(--terra)}
+main{max-width:900px;margin:0 auto;padding:8px 16px 80px}
+section{margin-top:40px;scroll-margin-top:70px}
+h2{font-size:24px;color:var(--navy);margin:0 0 6px;line-height:1.25}
+h2 .tag{display:inline-block;background:var(--terra);color:#fff;border-radius:8px;padding:1px 10px;font-size:15px;margin-right:10px;vertical-align:3px}
+h3{font-size:17px;margin:22px 0 6px;color:var(--ink)}
+p{margin:8px 0}
+.lead{font-size:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:14px 0}
+.q{border-left:4px solid var(--terra);background:var(--soft);padding:10px 14px;border-radius:0 10px 10px 0;margin:14px 0}
+.q b{color:var(--terra)}
+.ex{border-left:4px solid var(--ok);background:var(--okbg);padding:10px 14px;border-radius:0 10px 10px 0;margin:14px 0}
+.ex b.t{color:var(--ok)}
+.warn{border-left:4px solid var(--warn);background:var(--warnbg);padding:10px 14px;border-radius:0 10px 10px 0;margin:14px 0}
+table{width:100%;border-collapse:collapse;font-size:14.5px;margin:10px 0;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--soft);font-size:13px;text-transform:uppercase;letter-spacing:.03em;color:var(--mute)}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:center;white-space:nowrap}
+td.c{text-align:center}
+.scroll{overflow-x:auto}
+code,.pill{background:var(--code);border-radius:6px;padding:1px 7px;font-size:.92em}
+.pill{display:inline-block;font-weight:700;margin:0 2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){.grid2{grid-template-columns:1fr}}
+svg{width:100%;height:auto;display:block}
+svg text{font-family:system-ui,Arial,sans-serif;fill:var(--ink)}
+svg .box{fill:var(--card);stroke:var(--navy);stroke-width:2}
+svg .alibox{fill:var(--okbg);stroke:var(--ok);stroke-width:2}
+svg .aiebox{fill:var(--warnbg);stroke:var(--warn);stroke-width:2}
+svg .userbox{fill:var(--soft);stroke:var(--mute);stroke-width:2}
+svg .bound{fill:none;stroke:var(--mute);stroke-width:2;stroke-dasharray:8 6}
+svg .ln{stroke:var(--navy);stroke-width:2;fill:none}
+svg .dash{stroke:var(--warn);stroke-width:2;fill:none;stroke-dasharray:6 5}
+svg .small{font-size:12.5px;fill:var(--mute)}
+svg .bold{font-weight:700;font-size:15px}
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;align-items:end}
+.calc label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin-bottom:3px}
+.calc select,.calc input{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.result{margin-top:14px;padding:14px 16px;border-radius:12px;background:var(--navy);color:#fff}
+@media (prefers-color-scheme:dark){.result{color:#12161f}}
+.result b{font-size:22px}
+footer{max-width:900px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:14px}
+</style>
+</head>
+<body>
+<header>
+ <h1>ALI, AIE, EE, SE e CE explicados com o MultiPag</h1>
+ <p>Guia curto das cinco funções da contagem por Pontos de Função, com exemplos do nosso projeto e uma calculadora para treinar.</p>
+</header>
+<nav><div>
+ <a href="#visao">Visão geral</a><a href="#ali">ALI</a><a href="#aie">AIE</a><a href="#ee">EE</a><a href="#se">SE</a><a href="#ce">CE</a><a href="#lm">Lido e mantido</a><a href="#como">Como classificar</a><a href="#calculo">Cálculo de PF</a><a href="#calc">Calculadora</a><a href="#lista">Funções do MultiPag</a>
+</div></nav>
+<main>
+
+<section id="visao">
+ <h2>Visão geral</h2>
+ <p class="lead">Contar Pontos de Função é medir o tamanho de um sistema pelo que ele faz para o usuário. Para isso, separamos o sistema em <b>dados</b> (onde a informação fica guardada) e <b>transações</b> (o que o usuário consegue fazer).</p>
+ <div class="grid2">
+  <div class="card"><h3 style="margin-top:0">Funções de dados</h3><p><span class="pill">ALI</span> dados que o MultiPag guarda e mantém.</p><p><span class="pill">AIE</span> dados que ficam em outro sistema e o MultiPag só consulta.</p></div>
+  <div class="card"><h3 style="margin-top:0">Funções de transação</h3><p><span class="pill">EE</span> o usuário envia dados e o sistema grava.</p><p><span class="pill">SE</span> o sistema entrega um resultado calculado.</p><p><span class="pill">CE</span> o sistema só mostra o que já está guardado.</p></div>
+ </div>
+ <div class="card scroll">
+  <svg style="min-width:620px" viewBox="0 0 800 380" role="img" aria-label="Diagrama: o usuário envia dados por EE, recebe resultados por SE e CE, os ALI ficam dentro do MultiPag e os AIE ficam fora">
+   <defs>
+    <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--navy)"/></marker>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--warn)"/></marker>
+   </defs>
+   <rect class="bound" x="190" y="14" width="430" height="352" rx="18"/>
+   <text class="small" x="206" y="36">Fronteira do MultiPag</text>
+   <rect class="userbox" x="10" y="140" width="110" height="100" rx="14"/>
+   <text class="bold" x="65" y="186" text-anchor="middle">Usuário</text>
+   <text class="small" x="65" y="206" text-anchor="middle">business ou</text><text class="small" x="65" y="222" text-anchor="middle">cliente</text>
+   <rect class="box" x="250" y="50" width="110" height="52" rx="10"/><text class="bold" x="305" y="82" text-anchor="middle">EE</text>
+   <rect class="box" x="250" y="164" width="110" height="52" rx="10"/><text class="bold" x="305" y="196" text-anchor="middle">SE</text>
+   <rect class="box" x="250" y="278" width="110" height="52" rx="10"/><text class="bold" x="305" y="310" text-anchor="middle">CE</text>
+   <rect class="alibox" x="470" y="140" width="120" height="100" rx="14"/>
+   <text class="bold" x="530" y="186" text-anchor="middle">ALI</text><text class="small" x="530" y="206" text-anchor="middle">dados do</text><text class="small" x="530" y="222" text-anchor="middle">MultiPag</text>
+   <rect class="aiebox" x="664" y="140" width="126" height="100" rx="14"/>
+   <text class="bold" x="727" y="186" text-anchor="middle">AIE</text><text class="small" x="727" y="206" text-anchor="middle">dados de</text><text class="small" x="727" y="222" text-anchor="middle">outro sistema</text>
+   <path class="ln" d="M120 165 L250 82" marker-end="url(#a1)"/><text class="small" x="14" y="112">envia dados</text>
+   <path class="ln" d="M360 78 L470 160" marker-end="url(#a1)"/><text class="small" x="420" y="100">grava</text>
+   <path class="ln" d="M470 192 L360 192" marker-end="url(#a1)"/><text class="small" x="388" y="182">lê e calcula</text>
+   <path class="ln" d="M250 195 L120 195" marker-end="url(#a1)"/><text class="small" x="128" y="187">resultado</text>
+   <path class="ln" d="M470 222 L360 300" marker-end="url(#a1)"/><text class="small" x="400" y="276">só lê</text>
+   <path class="ln" d="M250 304 L120 225" marker-end="url(#a1)"/><text class="small" x="40" y="278">mostra</text>
+   <path class="dash" d="M664 190 L592 190" marker-end="url(#a2)"/><text class="small" x="628" y="180" text-anchor="middle">só lido</text>
+  </svg>
+ </div>
+</section>
+
+<section id="ali">
+ <h2><span class="tag">ALI</span>Arquivo Lógico Interno</h2>
+ <p class="lead">É um grupo de dados que o próprio MultiPag guarda e controla. Na prática, quase sempre corresponde a uma tabela do banco (ou a um pequeno conjunto de tabelas que só fazem sentido juntas).</p>
+ <div class="q"><b>Pergunta-teste:</b> o MultiPag cria, altera e apaga esses dados? Se sim, é um ALI.</div>
+ <h3>Exemplos do MultiPag</h3>
+ <div class="scroll"><table><thead><tr><th>Código</th><th>Arquivo</th><th>O que guarda</th></tr></thead><tbody><tr><td><b>ALI01</b></td><td>Business</td><td>Cadastro do lojista ou prestador de serviço que emite cobranças, com o saldo disponível para saque.</td></tr><tr><td><b>ALI02</b></td><td>Cliente</td><td>Conta opcional do cliente final, vinculada às cobranças pelo CPF.</td></tr><tr><td><b>ALI03</b></td><td>Cobrança</td><td>Cobrança criada pelo business, com os métodos de pagamento habilitados para ela.</td></tr><tr><td><b>ALI04</b></td><td>Pagamento</td><td>Registro do pagamento de uma cobrança e do seu status, até a confirmação pelo gateway.</td></tr><tr><td><b>ALI05</b></td><td>Movimentação</td><td>Extrato do saldo do business, com as entradas por pagamento e as saídas por saque.</td></tr><tr><td><b>ALI06</b></td><td>Saque</td><td>Solicitação de saque do saldo do business, exclusivamente via Pix.</td></tr></tbody></table></div>
+ <div class="ex"><b class="t">Detalhe importante:</b> a tabela <code>cobranca_metodo_pagamento</code> não é um ALI separado. Ela só existe para dizer quais métodos cada cobrança aceita, então entra no ALI Cobrança como um segundo registro lógico.</div>
+ <h3>Como se mede</h3>
+ <p>Um ALI é medido por <b>RLR</b> (registros lógicos: os grupos de dados dentro do arquivo) e por <b>DER</b> (itens de dados: os campos que o usuário reconhece). O ALI Cobrança, por exemplo, tem 2 RLR (Cobrança e Método habilitado) e 9 DER (valor, descrição, status, link e outros). Vale 7 PF quando é simples.</p>
+</section>
+
+<section id="aie">
+ <h2><span class="tag">AIE</span>Arquivo de Interface Externa</h2>
+ <p class="lead">É um grupo de dados que fica em <b>outro sistema</b>. O MultiPag precisa dele, mas não é quem cria nem quem altera. Só consulta.</p>
+ <div class="q"><b>Pergunta-teste:</b> esses dados pertencem a outro sistema e o MultiPag apenas lê? Se sim, é um AIE.</div>
+ <h3>Exemplos do MultiPag</h3>
+ <div class="scroll"><table><thead><tr><th>Código</th><th>Arquivo</th><th>O que é</th></tr></thead><tbody><tr><td><b>AIE01</b></td><td>Confirmação de pagamento Pix</td><td>Retorno do gateway com o resultado da transação Pix. É mantido pelo gateway e apenas lido pelo MultiPag.</td></tr><tr><td><b>AIE02</b></td><td>Confirmação de pagamento com cartão</td><td>Retorno da operadora com o resultado da transação de cartão, mantido fora do MultiPag.</td></tr><tr><td><b>AIE03</b></td><td>Confirmação de boleto</td><td>Retorno do banco com a compensação do boleto, mantido fora do MultiPag.</td></tr><tr><td><b>AIE04</b></td><td>Cotação e confirmação de cripto</td><td>Cotação vigente da criptomoeda e confirmação do envio na rede, fornecidas por serviço externo.</td></tr><tr><td><b>AIE05</b></td><td>Consulta de CPF</td><td>Situação cadastral do CPF, consultada na Receita Federal durante o cadastro.</td></tr><tr><td><b>AIE06</b></td><td>DICT de chaves Pix</td><td>Titular vinculado a uma chave Pix, consultado no diretório de chaves Pix (DICT).</td></tr></tbody></table></div>
+ <div class="warn"><b>ALI ou AIE?</b> A diferença é de quem é o dado. A cobrança que o business cria é do MultiPag (ALI). A chave Pix de uma pessoa e o titular dela pertencem ao diretório do Banco Central, o DICT (AIE). Um AIE só conta se alguma função do MultiPag o consultar, e todos os nossos são consultados.</div>
+ <p>A medição usa os mesmos critérios do ALI (RLR e DER), mas o peso é menor: 5 PF quando é simples, contra 7 do ALI.</p>
+</section>
+
+<section id="ee">
+ <h2><span class="tag">EE</span>Entrada Externa</h2>
+ <p class="lead">É quando o usuário (ou outro sistema) <b>envia dados para dentro</b> do MultiPag e o sistema <b>grava ou altera</b> alguma coisa. É a função de "cadastrar, alterar, excluir".</p>
+ <div class="q"><b>Pergunta-teste:</b> o usuário manda dados e isso muda algum ALI (ou o comportamento do sistema)? Se sim, é uma EE.</div>
+ <h3>Exemplos do MultiPag</h3>
+ <div class="scroll"><table><thead><tr><th>Função</th><th>O que acontece</th><th>Arquivo mantido</th></tr></thead><tbody>
+  <tr><td><b>EE01</b> Incluir business</td><td>O business informa seus dados e o sistema cria a conta.</td><td>Business</td></tr>
+  <tr><td><b>EE05</b> Incluir cobrança</td><td>O business informa valor e cliente e o sistema cria a cobrança e o link.</td><td>Cobrança</td></tr>
+  <tr><td><b>EE07</b> Excluir cobrança</td><td>O business cancela uma cobrança pendente.</td><td>Cobrança</td></tr>
+  <tr><td><b>EE10</b> Alterar conta de cliente</td><td>O cliente troca e-mail e senha.</td><td>Cliente</td></tr>
+  <tr><td><b>EE12</b> Solicitar saque via Pix</td><td>O business informa valor e chave Pix e o sistema registra o saque e baixa o saldo.</td><td>Saque, Business e Movimentação</td></tr>
+ </tbody></table></div>
+ <div class="ex"><b class="t">Os três tipos clássicos:</b> incluir, alterar e excluir. A tarefa pede pelo menos uma de cada para o projeto. Uma EE também pode ser outra operação que atualiza arquivos, como pagar uma cobrança com cartão (EE08).</div>
+ <p>Na contagem de uma EE entram os campos que o usuário informa e uma mensagem de retorno. Dados que o sistema gera sozinho (identificadores, datas, hash da senha) não contam.</p>
+</section>
+
+<section id="se">
+ <h2><span class="tag">SE</span>Saída Externa</h2>
+ <p class="lead">É quando o sistema <b>entrega um resultado para fora</b> e esse resultado envolve <b>processamento</b>: cálculo, soma, contagem ou geração de um dado que não estava pronto no banco.</p>
+ <div class="q"><b>Pergunta-teste:</b> o que aparece foi calculado ou gerado na hora? Se sim, é uma SE.</div>
+ <h3>Dado derivado</h3>
+ <p>Dado derivado é aquele que o sistema produz a partir de outros dados e que não fica gravado como está. É a prova de que a função é uma SE e não uma consulta. A tarefa pede para explicar isso em cada SE.</p>
+ <h3>Exemplos do MultiPag</h3>
+ <div class="scroll"><table><thead><tr><th>Função</th><th>Dado derivado</th></tr></thead><tbody>
+  <tr><td><b>SE02</b> Extrato com totais do período</td><td>Total de entradas, total de saídas e saldo do período, somados a partir das movimentações.</td></tr>
+  <tr><td><b>SE03</b> Pagamento via Pix com QR Code</td><td>QR Code, código copia e cola e prazo de expiração, gerados na hora.</td></tr>
+  <tr><td><b>SE04</b> Cotação e instruções em cripto</td><td>Valor em criptomoeda: valor em reais dividido pela cotação.</td></tr>
+  <tr><td><b>SE05</b> Cobranças do cliente com totais</td><td>Total pago, total pendente e quantidade de cobranças.</td></tr>
+  <tr><td><b>SE06</b> Comprovante de saque</td><td>Saldo antes e depois do saque, mais o arquivo do comprovante.</td></tr>
+ </tbody></table></div>
+ <p>Uma SE também pode atualizar um arquivo, como a SE03, que além de gerar o QR Code cria o pagamento como pendente.</p>
+</section>
+
+<section id="ce">
+ <h2><span class="tag">CE</span>Consulta Externa</h2>
+ <p class="lead">É quando o usuário <b>pede uma informação</b> e o sistema apenas <b>busca e mostra</b> o que já está guardado. Sem cálculo, sem dado derivado e sem alterar nenhum arquivo.</p>
+ <div class="q"><b>Pergunta-teste:</b> o sistema só busca e exibe, do jeito que está guardado? Se sim, é uma CE.</div>
+ <h3>Entrada e saída</h3>
+ <p>Toda CE tem duas partes: a <b>entrada</b> (o que o usuário informa para buscar, como um filtro, um código ou uma página) e a <b>saída</b> (o que aparece na tela). Cada parte é avaliada separadamente e a CE vale a <b>maior</b> das duas.</p>
+ <h3>Exemplos do MultiPag</h3>
+ <div class="scroll"><table><thead><tr><th>Função</th><th>Entrada</th><th>Saída</th></tr></thead><tbody>
+  <tr><td><b>CE02</b> Listar cobranças emitidas</td><td>Filtro de status e página</td><td>Número, descrição, valor, status e link de cada cobrança</td></tr>
+  <tr><td><b>CE03</b> Acessar cobrança pelo link</td><td>Código do link</td><td>Nome do business, descrição, valor e métodos habilitados</td></tr>
+  <tr><td><b>CE05</b> Validar chave Pix</td><td>Chave Pix</td><td>Tipo da chave, nome do titular e situação (vem do DICT)</td></tr>
+  <tr><td><b>CE06</b> Listar saques recentes</td><td>Página</td><td>Valor, datas e status de cada saque</td></tr>
+ </tbody></table></div>
+ <div class="warn"><b>SE ou CE?</b> A lista de cobranças do business (CE02) só mostra o que está gravado. Já a lista de cobranças do cliente com "total pago" e "total pendente" (SE05) faz soma, então é SE. As telas parecem iguais, o que muda é o cálculo.</div>
+</section>
+
+<section id="lm">
+ <h2>Lido e mantido</h2>
+ <p class="lead">Nas tabelas dos documentos, cada arquivo usado por uma função aparece como <b>lido</b> (L) ou <b>mantido</b> (M).</p>
+ <div class="grid2">
+  <div class="card"><h3 style="margin-top:0">Lido (L)</h3><p>A função só consulta o arquivo, sem mexer em nada.</p><p><i>Exemplo:</i> o painel do business lê a Movimentação para mostrar as últimas movimentações.</p></div>
+  <div class="card"><h3 style="margin-top:0">Mantido (M)</h3><p>A função cria, altera ou exclui registros do arquivo.</p><p><i>Exemplo:</i> Incluir cobrança mantém o arquivo Cobrança, porque grava uma cobrança nova.</p></div>
+ </div>
+ <div class="scroll"><table><thead><tr><th>Tipo</th><th>Pode ler?</th><th>Pode manter?</th></tr></thead><tbody>
+  <tr><td><b>EE</b></td><td class="c">sim</td><td class="c">sim (é a regra)</td></tr>
+  <tr><td><b>SE</b></td><td class="c">sim</td><td class="c">às vezes</td></tr>
+  <tr><td><b>CE</b></td><td class="c">sim</td><td class="c">nunca</td></tr>
+  <tr><td><b>AIE</b></td><td colspan="2" class="c">sempre só lido, quem mantém é o sistema externo</td></tr>
+ </tbody></table></div>
+</section>
+
+<section id="como">
+ <h2>Como classificar uma função</h2>
+ <p>Quando aparecer uma funcionalidade nova, responda nesta ordem:</p>
+ <div class="card">
+  <ol style="margin:0;padding-left:20px">
+   <li><b>É um grupo de dados guardado?</b> Se o MultiPag cria e altera, é <b>ALI</b>. Se pertence a outro sistema, é <b>AIE</b>.</li>
+   <li><b>É algo que o usuário faz?</b> Então é uma transação. Siga para a próxima pergunta.</li>
+   <li><b>Grava, altera ou exclui dados?</b> Se sim, é <b>EE</b>.</li>
+   <li><b>Só mostra dados. Existe cálculo, soma, contagem ou dado gerado na hora?</b> Se sim, é <b>SE</b>. Se não, é <b>CE</b>.</li>
+  </ol>
+ </div>
+ <div class="scroll"><table><thead><tr><th></th><th>ALI</th><th>AIE</th><th>EE</th><th>SE</th><th>CE</th></tr></thead><tbody>
+  <tr><td><b>Grupo</b></td><td>dados</td><td>dados</td><td>transação</td><td>transação</td><td>transação</td></tr>
+  <tr><td><b>Dado fica em</b></td><td>MultiPag</td><td>outro sistema</td><td>MultiPag</td><td>MultiPag</td><td>MultiPag</td></tr>
+  <tr><td><b>Sentido</b></td><td>-</td><td>-</td><td>entra</td><td>sai</td><td>entra e sai</td></tr>
+  <tr><td><b>Altera arquivo</b></td><td>-</td><td>-</td><td>sim</td><td>às vezes</td><td>não</td></tr>
+  <tr><td><b>Tem cálculo</b></td><td>-</td><td>-</td><td>não é o foco</td><td>sim</td><td>não</td></tr>
+  <tr><td><b>Exemplo</b></td><td>Cobrança</td><td>DICT</td><td>Incluir cobrança</td><td>Extrato com totais</td><td>Listar saques</td></tr>
+ </tbody></table></div>
+</section>
+
+<section id="calculo">
+ <h2>Como se calcula o tamanho em PF</h2>
+ <p class="lead">Sempre em três passos: contar, cruzar na tabela, aplicar o peso.</p>
+ <div class="grid2">
+  <div class="card"><h3 style="margin-top:0">Funções de transação</h3><p><b>1.</b> Contar os <b>ALR</b>: quantos ALIs e AIEs a função lê ou mantém.</p><p><b>2.</b> Contar os <b>DER</b>: quantos campos entram e saem.</p><p><b>3.</b> Cruzar na tabela e pegar o peso.</p></div>
+  <div class="card"><h3 style="margin-top:0">Funções de dados</h3><p><b>1.</b> Contar os <b>RLR</b>: grupos de dados dentro do arquivo.</p><p><b>2.</b> Contar os <b>DER</b>: campos do arquivo.</p><p><b>3.</b> Cruzar na tabela e pegar o peso.</p></div>
+ </div>
+ <h3>Complexidade: EE</h3>
+ <div class="scroll"><table><thead><tr><th>ALR \ DER</th><th class="n">1 a 4</th><th class="n">5 a 15</th><th class="n">16 ou mais</th></tr></thead><tbody>
+  <tr><td>0 ou 1</td><td class="c">Simples</td><td class="c">Simples</td><td class="c">Moderado</td></tr>
+  <tr><td>2</td><td class="c">Simples</td><td class="c">Moderado</td><td class="c">Complexo</td></tr>
+  <tr><td>3 ou mais</td><td class="c">Moderado</td><td class="c">Complexo</td><td class="c">Complexo</td></tr>
+ </tbody></table></div>
+ <h3>Complexidade: SE e CE</h3>
+ <div class="scroll"><table><thead><tr><th>ALR \ DER</th><th class="n">1 a 5</th><th class="n">6 a 19</th><th class="n">20 ou mais</th></tr></thead><tbody>
+  <tr><td>0 ou 1</td><td class="c">Simples</td><td class="c">Simples</td><td class="c">Moderado</td></tr>
+  <tr><td>2 ou 3</td><td class="c">Simples</td><td class="c">Moderado</td><td class="c">Complexo</td></tr>
+  <tr><td>4 ou mais</td><td class="c">Moderado</td><td class="c">Complexo</td><td class="c">Complexo</td></tr>
+ </tbody></table></div>
+ <h3>Complexidade: ALI e AIE</h3>
+ <div class="scroll"><table><thead><tr><th>RLR \ DER</th><th class="n">1 a 19</th><th class="n">20 a 50</th><th class="n">51 ou mais</th></tr></thead><tbody>
+  <tr><td>1</td><td class="c">Simples</td><td class="c">Simples</td><td class="c">Moderado</td></tr>
+  <tr><td>2 a 5</td><td class="c">Simples</td><td class="c">Moderado</td><td class="c">Complexo</td></tr>
+  <tr><td>6 ou mais</td><td class="c">Moderado</td><td class="c">Complexo</td><td class="c">Complexo</td></tr>
+ </tbody></table></div>
+ <h3>Pesos em PF</h3>
+ <div class="scroll"><table><thead><tr><th>Função</th><th class="n">Simples</th><th class="n">Moderado</th><th class="n">Complexo</th></tr></thead><tbody>
+  <tr><td><b>ALI</b></td><td class="c">7</td><td class="c">10</td><td class="c">15</td></tr>
+  <tr><td><b>AIE</b></td><td class="c">5</td><td class="c">7</td><td class="c">10</td></tr>
+  <tr><td><b>EE</b></td><td class="c">3</td><td class="c">4</td><td class="c">6</td></tr>
+  <tr><td><b>SE</b></td><td class="c">4</td><td class="c">5</td><td class="c">7</td></tr>
+  <tr><td><b>CE</b></td><td class="c">3</td><td class="c">4</td><td class="c">6</td></tr>
+ </tbody></table></div>
+ <h3>Exemplos resolvidos</h3>
+ <div class="ex"><b class="t">EE10, Alterar conta de cliente:</b> mexe só no arquivo Cliente (1 ALR) e tem 4 itens de dados. Linha "0 ou 1", coluna "1 a 4": Simples, <b>3 PF</b>.</div>
+ <div class="ex"><b class="t">SE02, Extrato com totais:</b> usa 4 arquivos (Business, Movimentação, Pagamento e Saque) e tem 13 itens de dados. Linha "4 ou mais", coluna "6 a 19": Complexo, <b>7 PF</b>.</div>
+ <div class="ex"><b class="t">CE01, Resultado do pagamento:</b> a entrada tem 1 arquivo e 1 item (Simples, 3 PF). A saída tem 3 arquivos e 7 itens (Moderado, 4 PF). Vale a maior parte: <b>4 PF</b>.</div>
+ <div class="ex"><b class="t">ALI03, Cobrança:</b> 2 registros lógicos e 9 itens de dados. Linha "2 a 5", coluna "1 a 19": Simples, <b>7 PF</b>.</div>
+</section>
+
+<section id="calc">
+ <h2>Calculadora</h2>
+ <p>Escolha o tipo, informe a quantidade de arquivos e de itens de dados e veja a complexidade e os PF. Para CE, calcule a entrada e a saída separadamente e fique com o maior valor.</p>
+ <div class="card">
+  <div class="calc">
+   <div><label for="t">Tipo</label><select id="t"><option value="EE">EE</option><option value="SE">SE</option><option value="CE">CE (uma parte)</option><option value="ALI">ALI</option><option value="AIE">AIE</option></select></div>
+   <div><label for="a" id="la">Arquivos referenciados (ALR)</label><input id="a" type="number" min="0" value="2"></div>
+   <div><label for="d">Itens de dados (DER)</label><input id="d" type="number" min="0" value="8"></div>
+  </div>
+  <div class="result" id="r" aria-live="polite"></div>
+ </div>
+</section>
+
+<section id="lista">
+ <h2>Todas as funções do MultiPag</h2>
+ <p>O que foi contado no projeto, com o tamanho de cada função.</p>
+ <div class="grid2">
+  <div><h3>ALI (42 PF)</h3><table><tbody><tr><td><b>ALI01</b></td><td>Business</td><td class="n">7</td></tr><tr><td><b>ALI02</b></td><td>Cliente</td><td class="n">7</td></tr><tr><td><b>ALI03</b></td><td>Cobrança</td><td class="n">7</td></tr><tr><td><b>ALI04</b></td><td>Pagamento</td><td class="n">7</td></tr><tr><td><b>ALI05</b></td><td>Movimentação</td><td class="n">7</td></tr><tr><td><b>ALI06</b></td><td>Saque</td><td class="n">7</td></tr></tbody></table>
+       <h3>AIE (30 PF)</h3><table><tbody><tr><td><b>AIE01</b></td><td>Confirmação de pagamento Pix</td><td class="n">5</td></tr><tr><td><b>AIE02</b></td><td>Confirmação de pagamento com cartão</td><td class="n">5</td></tr><tr><td><b>AIE03</b></td><td>Confirmação de boleto</td><td class="n">5</td></tr><tr><td><b>AIE04</b></td><td>Cotação e confirmação de cripto</td><td class="n">5</td></tr><tr><td><b>AIE05</b></td><td>Consulta de CPF</td><td class="n">5</td></tr><tr><td><b>AIE06</b></td><td>DICT de chaves Pix</td><td class="n">5</td></tr></tbody></table></div>
+  <div><h3>EE (46 PF)</h3><table><tbody><tr><td><b>EE01</b></td><td>Incluir business</td><td class="n">4</td></tr><tr><td><b>EE02</b></td><td>Alterar dados do business</td><td class="n">3</td></tr><tr><td><b>EE03</b></td><td>Excluir conta do business</td><td class="n">4</td></tr><tr><td><b>EE04</b></td><td>Confirmar pagamento recebido do gateway</td><td class="n">4</td></tr><tr><td><b>EE05</b></td><td>Incluir cobrança</td><td class="n">4</td></tr><tr><td><b>EE06</b></td><td>Alterar cobrança</td><td class="n">4</td></tr><tr><td><b>EE07</b></td><td>Excluir cobrança (cancelamento)</td><td class="n">3</td></tr><tr><td><b>EE08</b></td><td>Pagar cobrança com cartão</td><td class="n">4</td></tr><tr><td><b>EE09</b></td><td>Incluir conta de cliente</td><td class="n">6</td></tr><tr><td><b>EE10</b></td><td>Alterar conta de cliente</td><td class="n">3</td></tr><tr><td><b>EE11</b></td><td>Excluir conta de cliente</td><td class="n">3</td></tr><tr><td><b>EE12</b></td><td>Solicitar saque via Pix</td><td class="n">4</td></tr></tbody></table></div>
+  <div><h3>SE (34 PF)</h3><table><tbody><tr><td><b>SE01</b></td><td>Exibir painel do business com resumo</td><td class="n">5</td></tr><tr><td><b>SE02</b></td><td>Gerar extrato com totais do período</td><td class="n">7</td></tr><tr><td><b>SE03</b></td><td>Gerar pagamento via Pix com QR Code</td><td class="n">5</td></tr><tr><td><b>SE04</b></td><td>Gerar cotação e instruções de pagamento em criptomoeda</td><td class="n">5</td></tr><tr><td><b>SE05</b></td><td>Listar cobranças do cliente com totais</td><td class="n">7</td></tr><tr><td><b>SE06</b></td><td>Emitir comprovante de saque</td><td class="n">5</td></tr></tbody></table></div>
+  <div><h3>CE (21 PF)</h3><table><tbody><tr><td><b>CE01</b></td><td>Consultar resultado do pagamento</td><td class="n">4</td></tr><tr><td><b>CE02</b></td><td>Listar cobranças emitidas pelo business</td><td class="n">3</td></tr><tr><td><b>CE03</b></td><td>Acessar cobrança pelo link</td><td class="n">4</td></tr><tr><td><b>CE04</b></td><td>Consultar detalhes da cobrança</td><td class="n">4</td></tr><tr><td><b>CE05</b></td><td>Validar chave Pix de destino</td><td class="n">3</td></tr><tr><td><b>CE06</b></td><td>Listar saques recentes</td><td class="n">3</td></tr></tbody></table></div>
+ </div>
+</section>
+</main>
+<footer>Material de apoio da disciplina de Medição de Software, com exemplos do projeto MultiPag.</footer>
+<script>
+(function(){
+ var M={
+  EE:{rows:function(a){return a<=1?0:a===2?1:2},cols:function(d){return d<=4?0:d<=15?1:2},m:[['Simples','Simples','Moderado'],['Simples','Moderado','Complexo'],['Moderado','Complexo','Complexo']],w:[3,4,6]},
+  SC:{rows:function(a){return a<=1?0:a<=3?1:2},cols:function(d){return d<=5?0:d<=19?1:2},m:[['Simples','Simples','Moderado'],['Simples','Moderado','Complexo'],['Moderado','Complexo','Complexo']]},
+  DA:{rows:function(a){return a<=1?0:a<=5?1:2},cols:function(d){return d<=19?0:d<=50?1:2},m:[['Simples','Simples','Moderado'],['Simples','Moderado','Complexo'],['Moderado','Complexo','Complexo']]}
+ };
+ var W={EE:[3,4,6],SE:[4,5,7],CE:[3,4,6],ALI:[7,10,15],AIE:[5,7,10]};
+ var N=['Simples','Moderado','Complexo'];
+ var t=document.getElementById('t'),a=document.getElementById('a'),d=document.getElementById('d'),r=document.getElementById('r'),la=document.getElementById('la');
+ function go(){
+  var tp=t.value,av=Math.max(0,parseInt(a.value||'0',10)),dv=Math.max(0,parseInt(d.value||'0',10));
+  var isData=(tp==='ALI'||tp==='AIE');
+  la.textContent=isData?'Registros lógicos (RLR)':'Arquivos referenciados (ALR)';
+  if(dv<1||(isData&&av<1)){r.innerHTML='Informe pelo menos 1 item de dados'+(isData?' e 1 registro lógico.':'.');return;}
+  var cfg=tp==='EE'?M.EE:isData?M.DA:M.SC;
+  var cx=cfg.m[cfg.rows(av)][cfg.cols(dv)];
+  var pf=W[tp][N.indexOf(cx)];
+  r.innerHTML='Complexidade: <b>'+cx+'</b><br>Tamanho: <b>'+pf+' PF</b>';
+ }
+ [t,a,d].forEach(function(e){e.addEventListener('input',go);});go();
+})();
+</script>
+</body>
+</html>
