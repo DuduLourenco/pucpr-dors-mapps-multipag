@@ -1,0 +1,31 @@
+{
+  "name": "multipag-db-first",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MultiPag: Database First. Classes e telas de CRUD geradas a partir do banco.",
+  "type": "module",
+  "scripts": {
+    "banco": "docker compose up -d",
+    "gerar": "sequelize-auto -h localhost -p 5434 -d multipag -u multipag -x multipag -e postgres -o src/models -l ts --cm p --cp c --cf c --sg",
+    "admin": "tsx src/admin.ts"
+  },
+  "dependencies": {
+    "@adminjs/express": "^6.1.1",
+    "@adminjs/sequelize": "^4.1.1",
+    "adminjs": "^7.8.17",
+    "express": "^5.3.0",
+    "express-session": "^1.19.0",
+    "pg": "^8.23.1",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.8",
+    "sequelize-auto": "^0.8.8",
+    "tslib": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.19.0",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

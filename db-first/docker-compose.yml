@@ -1,0 +1,20 @@
+# Banco do Database First: PostgreSQL criado a partir dos scripts SQL do projeto.
+# Porta 5434 para não conflitar com o banco do MultiPag (5433).
+# Os scripts em docker-entrypoint-initdb.d rodam só na primeira vez (volume vazio).
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: multipag_db_first
+    environment:
+      POSTGRES_USER: multipag
+      POSTGRES_PASSWORD: multipag
+      POSTGRES_DB: multipag
+    ports:
+      - "5434:5432"
+    volumes:
+      - multipag_db_first_dados:/var/lib/postgresql/data
+      - ../db/database.sql:/docker-entrypoint-initdb.d/01-database.sql:ro
+      - ../db/002_ajustes_figma.sql:/docker-entrypoint-initdb.d/02-ajustes.sql:ro
+
+volumes:
+  multipag_db_first_dados:
