@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<featureModel>
+	<properties/>
+	<struct>
+		<and abstract="true" mandatory="true" name="MultiPag">
+			<and abstract="true" mandatory="true" name="GestaoDeConta">
+				<feature mandatory="true" name="Cadastro"/>
+				<feature mandatory="true" name="Autenticacao"/>
+				<alt abstract="true" mandatory="true" name="TipoDeConta">
+					<feature name="PessoaFisica"/>
+					<feature name="Empresa"/>
+				</alt>
+				<feature mandatory="true" name="EdicaoDePerfil"/>
+				<feature name="ExclusaoDeConta"/>
+			</and>
+			<and abstract="true" mandatory="true" name="Cobrancas">
+				<feature mandatory="true" name="CriacaoDeCobranca"/>
+				<feature mandatory="true" name="ItensDaCobranca"/>
+				<feature mandatory="true" name="LinkDePagamento"/>
+				<feature mandatory="true" name="ListagemDeCobrancas"/>
+				<feature name="EdicaoDeCobranca"/>
+				<feature name="CancelamentoDeCobranca"/>
+				<alt abstract="true" mandatory="true" name="DestinatarioDaCobranca">
+					<feature name="LinkAberto"/>
+					<feature name="ClienteIdentificado"/>
+				</alt>
+				<feature name="EnvioDoLinkPorEmail"/>
+				<and name="Recorrencia">
+					<alt abstract="true" mandatory="true" name="Frequencia">
+						<feature name="Semanal"/>
+						<feature name="Mensal"/>
+						<feature name="Anual"/>
+					</alt>
+				</and>
+			</and>
+			<and abstract="true" mandatory="true" name="Pagamentos">
+				<or abstract="true" mandatory="true" name="MetodosDePagamento">
+					<and name="Pix">
+						<feature name="QrCodePix"/>
+					</and>
+					<and name="Cartao">
+						<feature name="Parcelamento"/>
+					</and>
+					<feature name="Boleto"/>
+					<and name="Cripto">
+						<or abstract="true" mandatory="true" name="Criptomoedas">
+							<feature name="BTC"/>
+							<feature name="ETH"/>
+							<feature name="USDT"/>
+						</or>
+					</and>
+				</or>
+				<feature mandatory="true" name="PagamentoPeloLink"/>
+				<feature mandatory="true" name="AcompanhamentoDoPagamento"/>
+				<or abstract="true" mandatory="true" name="ConfirmacaoDePagamento">
+					<feature name="ConfirmacaoSincrona"/>
+					<feature name="ConfirmacaoPorWebhook"/>
+				</or>
+				<or abstract="true" mandatory="true" name="CalculoDeTaxa">
+					<feature name="TaxaPercentual"/>
+					<feature name="TarifaFixa"/>
+				</or>
+				<or abstract="true" mandatory="true" name="GatewaysDePagamento">
+					<feature name="AdapterPix"/>
+					<feature name="AdapterCartao"/>
+					<feature name="AdapterCripto"/>
+					<feature name="GatewayBoletoInterno"/>
+				</or>
+			</and>
+			<and abstract="true" mandatory="true" name="SaldoESaques">
+				<feature mandatory="true" name="Saldo"/>
+				<feature name="Saque"/>
+			</and>
+			<and abstract="true" mandatory="true" name="Extrato">
+				<feature mandatory="true" name="ConsultaDeExtrato"/>
+				<or abstract="true" name="ExportacaoDeExtrato">
+					<feature name="ExportacaoCsv"/>
+					<feature name="ExportacaoTexto"/>
+				</or>
+			</and>
+			<and abstract="true" mandatory="true" name="Seguranca">
+				<feature mandatory="true" name="SenhaComHash"/>
+				<feature mandatory="true" name="TokenDeSessao"/>
+				<and abstract="true" mandatory="true" name="ValidacaoDeDocumentos">
+					<feature mandatory="true" name="ValidacaoCpf"/>
+					<and name="ValidacaoCnpj">
+						<feature name="CnpjAlfanumerico"/>
+					</and>
+				</and>
+			</and>
+			<and abstract="true" mandatory="true" name="Infraestrutura">
+				<alt abstract="true" mandatory="true" name="Ambiente">
+					<feature name="Desenvolvimento"/>
+					<feature name="Producao"/>
+				</alt>
+				<feature mandatory="true" name="BancoPostgreSQL"/>
+				<feature mandatory="true" name="ApiRest"/>
+				<feature mandatory="true" name="TelasNextJs"/>
+				<feature name="DadosDeExemplo"/>
+			</and>
+		</and>
+	</struct>
+	<constraints>
+		<rule>
+			<conj>
+				<imp>
+					<var>Pix</var>
+					<var>AdapterPix</var>
+				</imp>
+				<imp>
+					<var>AdapterPix</var>
+					<var>Pix</var>
+				</imp>
+			</conj>
+		</rule>
+		<rule>
+			<conj>
+				<imp>
+					<var>Cartao</var>
+					<var>AdapterCartao</var>
+				</imp>
+				<imp>
+					<var>AdapterCartao</var>
+					<var>Cartao</var>
+				</imp>
+			</conj>
+		</rule>
+		<rule>
+			<conj>
+				<imp>
+					<var>Cripto</var>
+					<var>AdapterCripto</var>
+				</imp>
+				<imp>
+					<var>AdapterCripto</var>
+					<var>Cripto</var>
+				</imp>
+			</conj>
+		</rule>
+		<rule>
+			<conj>
+				<imp>
+					<var>Boleto</var>
+					<var>GatewayBoletoInterno</var>
+				</imp>
+				<imp>
+					<var>GatewayBoletoInterno</var>
+					<var>Boleto</var>
+				</imp>
+			</conj>
+		</rule>
+		<rule>
+			<imp>
+				<disj>
+					<var>Pix</var>
+					<var>Boleto</var>
+					<var>Cripto</var>
+				</disj>
+				<var>ConfirmacaoPorWebhook</var>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>ConfirmacaoPorWebhook</var>
+				<disj>
+					<var>Pix</var>
+					<var>Boleto</var>
+					<var>Cripto</var>
+				</disj>
+			</imp>
+		</rule>
+		<rule>
+			<conj>
+				<imp>
+					<var>Cartao</var>
+					<var>ConfirmacaoSincrona</var>
+				</imp>
+				<imp>
+					<var>ConfirmacaoSincrona</var>
+					<var>Cartao</var>
+				</imp>
+			</conj>
+		</rule>
+		<rule>
+			<conj>
+				<imp>
+					<var>Boleto</var>
+					<var>TarifaFixa</var>
+				</imp>
+				<imp>
+					<var>TarifaFixa</var>
+					<var>Boleto</var>
+				</imp>
+			</conj>
+		</rule>
+		<rule>
+			<conj>
+				<imp>
+					<disj>
+						<var>Pix</var>
+						<var>Cartao</var>
+						<var>Cripto</var>
+					</disj>
+					<var>TaxaPercentual</var>
+				</imp>
+				<imp>
+					<var>TaxaPercentual</var>
+					<disj>
+						<var>Pix</var>
+						<var>Cartao</var>
+						<var>Cripto</var>
+					</disj>
+				</imp>
+			</conj>
+		</rule>
+		<rule>
+			<conj>
+				<imp>
+					<var>Empresa</var>
+					<var>ValidacaoCnpj</var>
+				</imp>
+				<imp>
+					<var>ValidacaoCnpj</var>
+					<var>Empresa</var>
+				</imp>
+			</conj>
+		</rule>
+		<rule>
+			<imp>
+				<var>ExclusaoDeConta</var>
+				<var>Saque</var>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>DadosDeExemplo</var>
+				<not>
+					<var>Producao</var>
+				</not>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>EnvioDoLinkPorEmail</var>
+				<not>
+					<var>LinkAberto</var>
+				</not>
+			</imp>
+		</rule>
+	</constraints>
+</featureModel>
